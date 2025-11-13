@@ -19,7 +19,8 @@
     "node-cron": "^3.0.3",
     "nodemailer": "^6.9.11",
     "openai": "^4.22.0",
-    "pino": "^8.19.0"
+    "pino": "^8.19.0",
+    "pino-http": "^8.5.0"
   },
   "devDependencies": {
     "eslint": "^8.56.0",
