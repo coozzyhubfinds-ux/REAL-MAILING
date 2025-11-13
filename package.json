@@ -1,11 +1,11 @@
 {
   "name": "coldemail-automation",
   "version": "1.0.0",
-  "description": "AI-powered cold email automation system - Root package for Render deployment",
+  "description": "AI-powered cold email automation system",
   "private": true,
   "scripts": {
-    "postinstall": "cd server && npm install",
-    "start": "cd server && npm start"
+    "install-server": "cd server && npm install",
+    "start-server": "cd server && npm start"
   }
 }
 
