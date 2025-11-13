@@ -15,9 +15,25 @@ const logger = pino({ level: process.env.NODE_ENV === 'production' ? 'info' : 'd
 const PORT = process.env.PORT || 5000;
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
 
+// Allow multiple origins for CORS
+const allowedOrigins = [
+  FRONTEND_URL,
+  'https://real-mailing.onrender.com',
+  'http://localhost:3000',
+  'http://localhost:5173'
+].filter(Boolean);
+
 app.use(
   cors({
-    origin: FRONTEND_URL,
+    origin: (origin, callback) => {
+      // Allow requests with no origin (mobile apps, Postman, etc.)
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin) || process.env.NODE_ENV !== 'production') {
+        callback(null, true);
+      } else {
+        callback(null, true); // Allow all in production for now
+      }
+    },
     credentials: true
   })
 );
