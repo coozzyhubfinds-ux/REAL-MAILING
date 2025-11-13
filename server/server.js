@@ -3,11 +3,17 @@ import express from 'express';
 import cors from 'cors';
 import pino from 'pino';
 import pinoHttp from 'pino-http';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+import { existsSync } from 'fs';
 
 import leadsRouter from './routes/leads.js';
 import templatesRouter from './routes/templates.js';
 import campaignsRouter from './routes/campaigns.js';
 import analyticsRouter from './routes/analytics.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const app = express();
 const logger = pino({ level: process.env.NODE_ENV === 'production' ? 'info' : 'debug' });
@@ -60,12 +66,28 @@ app.use('/api/templates', templatesRouter);
 app.use('/api/campaigns', campaignsRouter);
 app.use('/api/analytics', analyticsRouter);
 
-app.use((req, res) => {
-  res.status(404).json({
-    success: false,
-    error: { message: `Route not found: ${req.method} ${req.originalUrl}` }
+// Serve static files from client/dist (if it exists)
+const clientDistPath = join(__dirname, '..', 'client', 'dist');
+if (existsSync(clientDistPath)) {
+  app.use(express.static(clientDistPath));
+  // Serve index.html for all non-API routes (React Router)
+  app.get('*', (req, res, next) => {
+    // Skip API routes
+    if (req.path.startsWith('/api')) {
+      return next();
+    }
+    res.sendFile(join(clientDistPath, 'index.html'));
   });
-});
+  logger.info('Serving frontend from client/dist');
+} else {
+  logger.warn('Frontend build not found at client/dist, serving API only');
+  app.use((req, res) => {
+    res.status(404).json({
+      success: false,
+      error: { message: `Route not found: ${req.method} ${req.originalUrl}` }
+    });
+  });
+}
 
 app.use((err, _req, res, _next) => {
   logger.error({ err }, 'Unhandled error');

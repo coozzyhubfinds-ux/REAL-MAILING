@@ -4,13 +4,15 @@ services:
     env: node
     rootDir: server
     plan: free
-    buildCommand: npm install
+    buildCommand: npm install && cd ../client && npm install && npm run build && cd ../server
     startCommand: npm start
     envVars:
       - key: PORT
         value: 5000
       - key: FRONTEND_URL
-        value: https://coldemail-client.onrender.com
+        value: https://real-mailing.onrender.com
+      - key: VITE_API_URL
+        value: https://real-mailing.onrender.com
   - type: static_site
     name: coldemail-client
     rootDir: client
